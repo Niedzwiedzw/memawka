@@ -5,8 +5,9 @@ from typing import List
 from koparka_memow.exceptions import ResponseParsingException
 from koparka_memow.settings import SETTINGS  # PyCharm is crying but this works just fine
 
-from koparka_memow.models import Author, GroupPost  # PyCharm is crying but this works just fine
+from koparka_memow.models import GroupPost  # PyCharm is crying but this works just fine
 
+from koparka_memow.token_manager.token_manager import TokenManager
 
 # .format(groupID, postLimitPerRequest, accessToken)
 QUERY_SCHEME = ("https://graph.facebook.com/v2.11/{}/feed?"
@@ -24,6 +25,7 @@ class KoparkaMemow:
         self._link_previous = None
 
         self.settings = settings
+        self.settings['accessToken'] = TokenManager.get_token()
         if limit is not None:
             self.settings['postsLimit'] = limit
         try:
@@ -33,7 +35,7 @@ class KoparkaMemow:
             exit(-1)
 
     def initialize_scraping(self) -> None:
-        response = requests.get(QUERY_SCHEME.format(*list(SETTINGS.values()))).json()
+        response = requests.get(QUERY_SCHEME.format(*list(self.settings.values()))).json()
 
         try:
             self._link_next = response['paging']['next']

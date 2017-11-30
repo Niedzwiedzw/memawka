@@ -11,4 +11,5 @@ class AuthorAdmin(admin.ModelAdmin):
 
 @admin.register(GroupPost)
 class AuthorAdmin(admin.ModelAdmin):
-    pass
+    fields = ('image_tag', 'author', 'creation', 'message', 'reaction_count', 'date_discovered', 'date_updated')
+    readonly_fields = ('image_tag', 'date_discovered', 'date_updated')

@@ -1,5 +1,8 @@
 from datetime import datetime
+from django.utils.timezone import make_aware
+from django.conf import settings
 from copy import copy
+import pytz
 import json
 
 from koparka_memow.models import Author
@@ -7,8 +10,9 @@ from koparka_memow.models import Author
 
 class GroupPost:
     def __init__(self, raw_post):
-        self.id = int(raw_post.get('id'))
-        self.creation = datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000')
+        self.facebook_id = str(raw_post.get('id'))
+        self.creation = make_aware(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000'),
+                                   timezone=pytz.timezone(settings.TIME_ZONE))
         self.author = Author(raw_post.get('from'))
         self.message = raw_post.get('message')
 
@@ -16,11 +20,12 @@ class GroupPost:
                                   .get('summary', copy({}))
                                   .get('total_count', copy({})))
         self.image_url = raw_post.get('full_picture')
+
     def __str__(self):
         return str(self.__dict__)
 
     def __repr__(self):
         return str(self.__dict__)
 
-    def __eq__(self, other: Author) -> bool:
-        return self.id == other.id
+    def __eq__(self, other) -> bool:
+        return self.facebook_id == other.facebook_id
