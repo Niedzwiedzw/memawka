@@ -2,7 +2,7 @@ from datetime import datetime
 from copy import copy
 import json
 
-from models import Author
+from koparka_memow.models import Author
 
 
 class GroupPost:
@@ -15,7 +15,7 @@ class GroupPost:
         self.reaction_count = int(raw_post.get('reactions', copy({}))
                                   .get('summary', copy({}))
                                   .get('total_count', copy({})))
-
+        self.image_url = raw_post.get('full_picture')
     def __str__(self):
         return str(self.__dict__)
 

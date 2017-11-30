@@ -1,10 +1,11 @@
 import requests
+from time import sleep
 from pprint import pprint
 from typing import List
-from exceptions import ResponseParsingException
-from settings import SETTINGS  # PyCharm is crying but this works just fine
+from koparka_memow.exceptions import ResponseParsingException
+from koparka_memow.settings import SETTINGS  # PyCharm is crying but this works just fine
 
-from models import Author, GroupPost  # PyCharm is crying but this works just fine
+from koparka_memow.models import Author, GroupPost  # PyCharm is crying but this works just fine
 
 
 # .format(groupID, postLimitPerRequest, accessToken)
@@ -25,8 +26,11 @@ class KoparkaMemow:
         self.settings = settings
         if limit is not None:
             self.settings['postsLimit'] = limit
-
-        self.initialize_scraping()
+        try:
+            self.initialize_scraping()
+        except ResponseParsingException as e:
+            print(e)
+            exit(-1)
 
     def initialize_scraping(self) -> None:
         response = requests.get(QUERY_SCHEME.format(*list(SETTINGS.values()))).json()
@@ -53,4 +57,9 @@ class KoparkaMemow:
 
 
 if __name__ == '__main__':
-    print(KoparkaMemow(limit=5).posts)
+    koparka = KoparkaMemow(limit=5)
+
+    for i in range(5):
+        print(koparka.posts)
+        sleep(1)
+        koparka.next()
