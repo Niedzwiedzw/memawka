@@ -16,7 +16,7 @@
       }
     },
     created: function () {
-      axios.get('http://165.227.133.227:8090/memes/memes/')
+      axios.get('http://165.227.133.227:8000/memes/memes/')
         .then(response => {
           this.memes = response.data.results
         })
