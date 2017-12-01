@@ -1,10 +1,10 @@
 <template>
   <div class="card app-main-card">
-    <img class="card-img-top" :src="imageUrl" alt="Card image cap">
+    <img class="card-img-top" :src="meme.image_url" alt="Card image cap">
     <div class="card-body">
-      <h4 class="card-title">Card title</h4>
-      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+      <h4 class="card-title">{{ meme.reaction_count }} <i style="color: red;" class="fa fa-star"></i></h4>
+      <p class="card-text">{{ meme.message }}</p>
+      <a href="https://www.facebook.com/groups/jbwamem/permalink/1677854812258843/" class="btn btn-primary">Zobacz ten mem na grupie</a>
     </div>
   </div>
 </template>
@@ -12,9 +12,9 @@
 <script>
   export default {
     name: 'image-box',
+    props: ['meme'],
     data () {
       return {
-        imageUrl: 'https://scontent.xx.fbcdn.net/v/t1.0-9/s720x720/22851900_153911322011714_4302665789563309979_n.jpg?oh=13aeb63eb9e1ae7cf48a3baeaa8731fd&oe=5A94D091'
       }
     }
   }

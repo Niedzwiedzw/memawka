@@ -2,7 +2,7 @@
   <div id="app">
     <app-navbar></app-navbar>
     <div class="container">
-      <image-box v-for="index in 3"></image-box>
+      <meme-feed></meme-feed>
     </div>
   </div>
 </template>
@@ -10,9 +10,10 @@
 <script>
   import AppNavbar from './components/AppNavbar.vue'
   import ImageBox from './components/ImageBox.vue'
+  import MemeFeed from './MemeFeed.vue'
   export default {
     name: 'app',
-    components: { AppNavbar, ImageBox }
+    components: { AppNavbar, ImageBox, MemeFeed }
   }
 </script>
 

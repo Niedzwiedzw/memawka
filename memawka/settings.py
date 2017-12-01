@@ -26,8 +26,12 @@ SECRET_KEY = '((4b8&e*h_4r*mj4@%amo43g9wy$4krru$r+z10c&4tu-i&@m6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+
+if os.getenv('MEMAWKA_PRODUCTION') == 1:
+    DEBUG = False
+    ALLOWED_HOSTS = []  # TODO: Add page domain for production
 
 # Application definition
 
@@ -38,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'meme_feed.apps.MemeFeedConfig'
+    'meme_feed.apps.MemeFeedConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +55,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'PAGE_SIZE': 10,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
+}
 
 ROOT_URLCONF = 'memawka.urls'
 
