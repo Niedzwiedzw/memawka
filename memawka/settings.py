@@ -24,18 +24,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '((4b8&e*h_4r*mj4@%amo43g9wy$4krru$r+z10c&4tu-i&@m6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost']  # TODO: Add page domain for production
 
-
-if os.getenv('MEMAWKA_PRODUCTION') == 1:
-    DEBUG = False
-    ALLOWED_HOSTS = []  # TODO: Add page domain for production
+if os.getenv('MEMAWKA_DEBUG_MODE') == '1':
+    print("** APPLICATION IS RUNNING IN DEBUG MODE **")
+    DEBUG = True
+    ALLOWED_HOSTS = ['*']
+    CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

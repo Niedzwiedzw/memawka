@@ -21,6 +21,8 @@ pip install -r requirements.txt
 ```
 3. `python manage.py migrate`
 4. `python manage.py runserver`
+5. For debuggin you must set environmental value of `MEMAWKA_DEBUG_MODE` to `1`, this can be done easily in PyCharm
+ under `Edit configuration` > `Django server`(Dropdown menu in the upper right of the screen)
 ## Installing frontend
 
 0. Navigate into `memawka/clientapp/memawka-client`
