@@ -2,7 +2,7 @@
   <div id="app">
     <app-navbar></app-navbar>
     <div class="container">
-      <meme-feed></meme-feed>
+      <router-view></router-view>
     </div>
   </div>
 </template>

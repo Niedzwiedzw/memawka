@@ -5,6 +5,7 @@ from meme_feed import views
 
 router = routers.DefaultRouter()
 router.register(r'memes', views.MemeViewSet)
+router.register(r'authors', views.AuthorsViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

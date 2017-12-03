@@ -1,6 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a href="#" class="navbar-brand">Memawka</a>
+    <router-link class="navbar-brand" to="/">Memawka</router-link>
+    <router-link class="navbar-brand" to="/profile/123">User</router-link>
   </nav>
 </template>
 
@@ -17,7 +18,8 @@
 <style scoped>
   .navbar {
     position: fixed;
-    top: 0px;
-    width: 100%
+    top: 0;
+    width: 100%;
+    z-index: 3;
   }
 </style>

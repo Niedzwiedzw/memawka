@@ -33,8 +33,8 @@
     <!--content-->
     <div class="container">
       <div class="row">
-        <div class="col-12">
-          <image-box v-for="(meme, index) in memes" :key="index" :meme="meme"></image-box>
+        <div class="col-12" v-for="(meme, index) in memes" :key="index">
+          <image-box :meme="meme"></image-box>
         </div>
       </div>
     </div>
@@ -94,6 +94,8 @@
             this.page = pageNum
             console.log(this.memes.length)
             this.numberOfPages = this.count / this.memes.length
+            console.log(this.memes)
+            window.scroll(0, 0)
           })
       }
     },

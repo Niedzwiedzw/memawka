@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 from django.conf import settings
 from copy import copy
@@ -7,12 +7,20 @@ import json
 
 from koparka_memow.models import Author
 
+local_tz = pytz.timezone('Poland')
+
 
 class GroupPost:
     def __init__(self, raw_post):
         self.facebook_id = str(raw_post.get('id'))
-        self.creation = make_aware(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000'),
-                                   timezone=pytz.timezone(settings.TIME_ZONE))
+        try:
+            self.creation = local_tz.localize(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000'),
+                                              is_dst=None)
+        except pytz.AmbiguousTimeError as e:
+            print(e)
+            self.creation = local_tz.localize(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000')
+                                              + timedelta(hours=1),
+                                              is_dst=None)
         self.author = Author(raw_post.get('from'))
         self.message = raw_post.get('message')
 

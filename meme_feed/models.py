@@ -10,7 +10,11 @@ class Author(models.Model):
     name = models.CharField(max_length=200, verbose_name='Facebook name')
 
     @property
-    def posts(self):
+    def reaction_sum(self):
+        return self.memes.aggregate(models.Sum('reaction_count'))
+
+    @property
+    def memes(self):
         return GroupPost.objects.filter(author__id=self.id)
 
     @classmethod

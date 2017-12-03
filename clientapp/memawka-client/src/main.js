@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import moment from 'moment'
 import 'bootstrap/dist/css/bootstrap.css'
 
 Vue.config.productionTip = false
@@ -11,6 +12,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  moment,
   template: '<App/>',
   components: { App }
 })
