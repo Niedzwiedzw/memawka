@@ -11,6 +11,7 @@
   import AppNavbar from './components/AppNavbar.vue'
   import ImageBox from './components/ImageBox.vue'
   import MemeFeed from './MemeFeed.vue'
+
   export default {
     name: 'app',
     components: { AppNavbar, ImageBox, MemeFeed }

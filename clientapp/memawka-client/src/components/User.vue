@@ -11,7 +11,7 @@
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
           <h2>
-            GRUPY
+            GRUPsY
             <br>
             <span class="badge badge-success">Memawka</span>
             <span v-for="i in 12" class="badge badge-secondary">Gownawka</span>
@@ -44,6 +44,7 @@
 
 <script>
   import axios from 'axios'
+  import validateToken from '../http-common'
   export default {
     name: 'User',
     data () {
@@ -61,6 +62,7 @@
       }
     },
     created () {
+      console.log(this.$cookie.get('meme-token'))
       this.getProfile(this.$route.params['id'])
     }
   }

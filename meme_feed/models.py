@@ -4,10 +4,17 @@ from django.utils.safestring import mark_safe
 from koparka_memow.models import Author as AuthorRaw
 from koparka_memow.models import GroupPost as GroupPostRaw
 
+from allauth.socialaccount.models import SocialAccount
+
 
 class Author(models.Model):
     facebook_id = models.CharField(verbose_name='Facebook user ID', unique=True, max_length=200)
     name = models.CharField(max_length=200, verbose_name='Facebook name')
+    facebook_profile = models.ForeignKey(SocialAccount,
+                                         blank=True,
+                                         null=True,
+                                         default=None,
+                                         related_name='facebook_profile')
 
     @property
     def reaction_sum(self):

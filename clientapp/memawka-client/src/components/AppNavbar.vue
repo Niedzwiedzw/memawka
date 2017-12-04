@@ -2,6 +2,7 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <router-link class="navbar-brand" to="/">Memawka</router-link>
     <router-link class="navbar-brand" to="/profile/123">User</router-link>
+
   </nav>
 </template>
 

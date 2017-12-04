@@ -1,0 +1,17 @@
+{% load socialaccount %}
+{% providers_media_js %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Podłącz swoje konto Facebook</title>
+</head>
+<body>
+
+
+{% if user.is_authenticated %}
+    SUKCES ( ͡° ͜ʖ ͡°)
+{% endif %}
+
+</body>
+</html>
