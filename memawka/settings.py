@@ -17,6 +17,9 @@ from koparka_memow.token_manager import token_manager
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLIENT_ADDRESS = 'http://127.0.0.1:8080'
 
+DEFAULT_NAME = 'Mokebe Ubuntu'
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 

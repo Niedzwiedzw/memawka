@@ -5,17 +5,14 @@ import App from './App'
 import router from './router'
 import moment from 'moment'
 import 'bootstrap/dist/css/bootstrap.css'
-import VueCookie from 'vue-cookie'
 
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
-let mainVue = new Vue({
+new Vue({
   el: '#app',
   router,
   moment,
   template: '<App/>',
   components: { App }
 })
-
-mainVue.use(VueCookie)

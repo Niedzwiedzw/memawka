@@ -5,7 +5,7 @@ from meme_feed.models import GroupPost, Author
 class AuthorSmallSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Author
-        fields = ('id', 'name')
+        fields = ('id', 'display_name')
 
 
 class MemeSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,5 +21,5 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Author
-        fields = ('id', 'name', 'memes', 'reaction_sum')
+        fields = ('id', 'name', 'display_name', 'memes', 'reaction_sum')
 

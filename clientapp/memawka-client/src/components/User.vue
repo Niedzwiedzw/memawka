@@ -9,9 +9,10 @@
         <p class="card-text">Suma lajkow: <strong>{{ user.reaction_sum.reaction_count__sum }}</strong></p>
       </div>
       <ul class="list-group list-group-flush">
+
         <li class="list-group-item">
           <h2>
-            GRUPsY
+            GRUPY
             <br>
             <span class="badge badge-success">Memawka</span>
             <span v-for="i in 12" class="badge badge-secondary">Gownawka</span>
@@ -43,26 +44,33 @@
 </template>
 
 <script>
-  import axios from 'axios'
-  import validateToken from '../http-common'
+  import axiosInstance from '../http-common'
   export default {
     name: 'User',
     data () {
       return {
-        user: null
+        user: {memes: [
+          {
+            reaction_count: 0,
+            image_url: ''
+          }],
+          reaction_sum: 0
+        }
       }
     },
     methods: {
       getProfile (id) {
-        axios.get('http://127.0.0.1:8000/memes/authors/' + id)
+        axiosInstance.get('/memes/authors/' + id + '/')
           .then((response) => {
             this.user = response.data
             console.log(this.user)
           })
+      },
+      isOwner (id) {
+        return true
       }
     },
     created () {
-      console.log(this.$cookie.get('meme-token'))
       this.getProfile(this.$route.params['id'])
     }
   }

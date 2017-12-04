@@ -4,7 +4,11 @@ from django.utils.safestring import mark_safe
 from koparka_memow.models import Author as AuthorRaw
 from koparka_memow.models import GroupPost as GroupPostRaw
 
+from rest_framework_jwt.authentication import jwt_get_username_from_payload
+from django.contrib.auth.models import User
 from allauth.socialaccount.models import SocialAccount
+
+from django.conf import settings
 
 
 class Author(models.Model):
@@ -15,6 +19,27 @@ class Author(models.Model):
                                          null=True,
                                          default=None,
                                          related_name='facebook_profile')
+
+    facebook_authorized = models.BooleanField(default=False)
+    name_displayed = models.BooleanField(default=False)
+
+    @classmethod
+    def get_by_username(cls, username: str):
+        return cls.objects.get(facebook_profile__user=User.objects.get(username__exact=username))
+
+    @property
+    def user(self):
+        if self.facebook_profile is None:
+            return None
+        return self.facebook_profile.user
+
+    @property
+    def active_token(self):
+        return
+
+    @property
+    def display_name(self):
+        return self.name if self.name_displayed else settings.DEFAULT_NAME
 
     @property
     def reaction_sum(self):
@@ -47,7 +72,7 @@ class GroupPost(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
 
     def image_tag(self):
-        return mark_safe(f'<img src="{self.image_url}" width="auto" height="400" />')
+        return mark_safe(f'<img src="{self.image_url}" width="auto" height="400"/>')
 
     image_tag.short_description = 'Image'
 

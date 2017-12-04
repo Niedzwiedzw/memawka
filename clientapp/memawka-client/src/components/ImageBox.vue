@@ -4,7 +4,7 @@
     <div class="card-body">
       <h4 class="card-title">{{ meme.reaction_count }} <i style="color: red;" class="fa fa-star"></i></h4>
       <p class="card-text" :title="humanDate">
-        <strong><router-link :to="'/profile/' + meme.author.id">[{{ timeSinceAdded }}] {{meme.author.name}} </router-link></strong>{{ meme.message }}</p>
+        <strong><router-link :to="'/profile/' + meme.author.id">[{{ timeSinceAdded }}] {{meme.author.display_name}} </router-link></strong>{{ meme.message }}</p>
       <a target="_blank" :href="facebook_link" class="btn btn-primary">Zobacz ten mem na grupie</a>
     </div>
   </div>
@@ -23,7 +23,8 @@
     },
     data () {
       return {
-        facebook_link: 'www.google.com'
+        facebook_link: 'www.google.com',
+        timeSinceAdded: ''
       }
     }
   }

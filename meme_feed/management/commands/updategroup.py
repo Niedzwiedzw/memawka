@@ -10,10 +10,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         koparka = KoparkaMemow(limit=50)
-        for i in range(50):
-            # sleep(1)
+        i = 0
+        while True:
             for post in koparka.posts:
                 print('.', end='')
                 GroupPost.create_from_raw(post)
             print(i)
             koparka.next()
+            i += 1
