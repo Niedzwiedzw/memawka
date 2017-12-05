@@ -92,9 +92,7 @@
             this.memes = response.data.results
             this.count = response.data.count
             this.page = pageNum
-            console.log(this.memes.length)
             this.numberOfPages = Math.ceil(this.count / 10)
-            console.log(this.memes)
             window.scroll(0, 0)
           })
       }

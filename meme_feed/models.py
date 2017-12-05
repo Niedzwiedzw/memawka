@@ -22,10 +22,16 @@ class Author(models.Model):
 
     facebook_authorized = models.BooleanField(default=False)
     name_displayed = models.BooleanField(default=False)
+    avatar_displayed = models.BooleanField(default=False)
+
+    @property
+    def display_avatar(self):
+        default = 'https://upload.wikimedia.org/wikipedia/commons/4/42/A_black_man%2C_Chicago._-_NARA_-_556149.jpg'
+        return self.facebook_profile.get_avatar_url() if self.avatar_displayed else default
 
     @classmethod
     def get_by_username(cls, username: str):
-        return cls.objects.get(facebook_profile__user=User.objects.get(username__exact=username))
+        return cls.objects.get(facebook_profile__user=User.objects.get(username=username))
 
     @property
     def user(self):
