@@ -27,7 +27,7 @@
       ])
     },
     created () {
-      this.refreshUser()
+      setInterval(this.refreshUser, 5000)
     }
   }
 </script>

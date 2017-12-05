@@ -51,13 +51,15 @@ def facebook_login(request):
     author_account.save()
     response = redirect(settings.CLIENT_ADDRESS + '/#/profile/' + str(author_account.id) + '#')
 
-    response.set_cookie('meme-token', jwt_encode_handler(jwt_payload_handler(user)), max_age=20)  # TODO: Set to one day
+    response.set_cookie('meme-token', jwt_encode_handler(jwt_payload_handler(user)), max_age=5)  # TODO: Set to one day
 
     return response
 
 
 def jwt_get_owner(request):
     token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
+    if token == 'undefined':
+        return JsonResponse(data={'success': False}, status=401)
     try:
         username = jwt_get_username_from_payload(jwt_decode_handler(token))
         author = Author.get_by_username(username=username)
@@ -69,3 +71,36 @@ def jwt_get_owner(request):
         print(e)
         return JsonResponse({'author': None})
 
+
+def toggle_real_photo(request):
+    token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
+    if token == 'undefined':
+        return JsonResponse(data={'success': False}, status=401)
+    try:
+        username = jwt_get_username_from_payload(jwt_decode_handler(token))
+        author = Author.get_by_username(username=username)
+        author.avatar_displayed = not author.avatar_displayed
+        author.save()
+        success = True
+    except ExpiredSignatureError as e:
+        print(e)
+        success = False
+
+    return JsonResponse(data={'success': success}, status=200 if success else 400)
+
+
+def toggle_real_name(request):
+    token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
+    if token == 'undefined':
+        return JsonResponse(data={'success': False}, status=401)
+    try:
+        username = jwt_get_username_from_payload(jwt_decode_handler(token))
+        author = Author.get_by_username(username=username)
+        author.name_displayed = not author.name_displayed
+        author.save()
+        success = True
+    except ExpiredSignatureError as e:
+        print(e)
+        success = False
+
+    return JsonResponse(data={'success': success}, status=200 if success else 400)
