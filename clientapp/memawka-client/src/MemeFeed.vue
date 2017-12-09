@@ -71,14 +71,14 @@
 </template>
 
 <script>
-  import axios from 'axios'
+  import axiosInstance from './http-common'
   import ImageBox from './components/ImageBox.vue'
   export default {
     name: 'MemeFeed',
     components: {ImageBox},
     data: () => {
       return {
-        baseUrl: 'http://127.0.0.1:8000/memes/memes/',
+        baseUrl: 'memes/memes/',
         memes: [],
         count: 0,
         page: 1,
@@ -87,19 +87,17 @@
     },
     methods: {
       getPage (pageNum) {
-        axios.get(this.baseUrl + '?page=' + pageNum)
+        axiosInstance.get(this.baseUrl + '?page=' + pageNum)
           .then(response => {
             this.memes = response.data.results
             this.count = response.data.count
             this.page = pageNum
-            console.log(this.memes.length)
-            this.numberOfPages = this.count / this.memes.length
-            console.log(this.memes)
+            this.numberOfPages = Math.ceil(this.count / 10)
             window.scroll(0, 0)
           })
       }
     },
-    created: function () {
+    mounted: function () {
       this.getPage(1)
     }
   }

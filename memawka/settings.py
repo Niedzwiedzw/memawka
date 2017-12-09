@@ -15,6 +15,9 @@ from koparka_memow.token_manager import token_manager
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CLIENT_ADDRESS = 'http://127.0.0.1:8080'
+
+DEFAULT_NAME = 'Mokebe Ubuntu'
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,6 +30,8 @@ SECRET_KEY = '((4b8&e*h_4r*mj4@%amo43g9wy$4krru$r+z10c&4tu-i&@m6'
 DEBUG = False
 
 ALLOWED_HOSTS = ['localhost']  # TODO: Add page domain for production
+LOGIN_REDIRECT_URL = "/memes/facebook-login"  # TODO: Hostname for our app
+
 
 if os.getenv('MEMAWKA_DEBUG_MODE') == '1':
     print("** APPLICATION IS RUNNING IN DEBUG MODE **")
@@ -40,13 +45,22 @@ INSTALLED_APPS = [
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'meme_feed.apps.MemeFeedConfig',
+
     'rest_framework',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
 ]
+
+SITE_ID = 3
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -64,8 +78,36 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'PAGE_SIZE': 10,
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
 }
+
+SOCIALACCOUNT_PROVIDERS = {
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {},
+        'INIT_PARAMS': {'cookie': True},
+        'FIELDS': [
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'gender',
+            'verified',
+            'link',
+            'updated_time',
+        ],
+        'EXCHANGE_TOKEN': True,
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v2.5',
+    }
+}
+
 
 ROOT_URLCONF = 'memawka.urls'
 
@@ -86,6 +128,12 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
 
 WSGI_APPLICATION = 'memawka.wsgi.application'
 
@@ -123,7 +171,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'pl'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'Europe/Warsaw'
 

@@ -9,4 +9,6 @@ router.register(r'authors', views.AuthorsViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^facebook-login', views.facebook_login, name='facebook_login'),
+    url(r'^get-owner', views.jwt_get_owner, name='jwt_get_owner')
 ]
