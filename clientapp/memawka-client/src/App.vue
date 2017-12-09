@@ -27,8 +27,4 @@
     color: #2c3e50;
     margin-top: 60px;
   }
-  .blue {
-    background-color: lightblue;
-    border: 1px solid blue;
-  }
 </style>

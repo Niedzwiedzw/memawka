@@ -14,11 +14,11 @@ class GroupPost:
     def __init__(self, raw_post):
         self.facebook_id = str(raw_post.get('id'))
         try:
-            self.creation = local_tz.localize(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000'),
+            self.created = local_tz.localize(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000'),
                                               is_dst=None)
         except pytz.AmbiguousTimeError as e:
             print(e)
-            self.creation = local_tz.localize(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000')
+            self.created = local_tz.localize(datetime.strptime(raw_post.get('created_time'), '%Y-%m-%dT%H:%M:%S+0000')
                                               + timedelta(hours=1),
                                               is_dst=None)
         self.author = Author(raw_post.get('from'))

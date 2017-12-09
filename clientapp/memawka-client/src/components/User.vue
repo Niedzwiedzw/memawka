@@ -28,15 +28,8 @@
         </li>
       </ul>
       <div class="row">
-        <div class="col-lg-4 col-md-6 col-sm-6"  v-for="meme in user.memes">
-          <div class="card-body">
-            <div class="card" style="width: 20rem;">
-              <img class="card-img-top" :src="meme.image_url" alt="Card image cap">
-              <div class="card-body">
-                <h4 class="card-title">{{meme.reaction_count}} likes</h4>
-              </div>
-            </div>
-          </div>
+        <div v-if="user.memes[0]['facebook_id']" class="col-lg-4 col-md-6 col-sm-6"  v-for="meme in user.memes">
+          <image-box :meme="meme"></image-box>
         </div>
       </div>
     </div>

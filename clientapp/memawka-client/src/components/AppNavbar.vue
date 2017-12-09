@@ -1,8 +1,15 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <router-link class="navbar-brand" to="/">Memawka</router-link>
-    <router-link v-if="loggedUser" class="navbar-brand" :to="'/profile/'+loggedUser.id+'/'">Moje konto</router-link>
-    <a class="navbar-brand" href="http://127.0.0.1:8000/accounts/facebook/login">
+    <router-link
+      class="navbar-brand"
+      to="/">Memawka</router-link>
+    <router-link
+      v-if="loggedUser"
+      class="navbar-brand d-none d-md-block"
+      :to="'/profile/'+loggedUser.id+'/'">Moje konto</router-link>
+
+    <a class="navbar-brand d-none d-sm-block"
+       href="http://127.0.0.1:8000/accounts/facebook/login">
       {{loggedUser ? 'Witaj ' + loggedUser.name : 'Zaloguj sie z uzyciem Facebooka' }}
     </a>
   </nav>
@@ -27,6 +34,7 @@
       ])
     },
     created () {
+      this.refreshUser()
       setInterval(this.refreshUser, 5000)
     }
   }

@@ -1,25 +1,29 @@
 from django.shortcuts import render, redirect
 from jwt import ExpiredSignatureError
-from rest_framework import viewsets, views
+from rest_framework import viewsets, views, status
 from rest_framework import exceptions
+
+from rest_framework.generics import ListAPIView
 from rest_framework.decorators import api_view
+
 from django.http import JsonResponse
 
 from allauth.socialaccount import models as authModels
 from django.contrib.auth.models import User
 from django.contrib.auth import settings
-from meme_feed.models import Author
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from meme_feed.models import Author, GroupPostComment
 
 from rest_framework_jwt.settings import api_settings
 from rest_framework_jwt.authentication import jwt_get_username_from_payload, jwt_decode_handler
 
+from meme_feed.models import GroupPost, Author, GroupPostComment
+from meme_feed.serializers import MemeSerializer, AuthorSerializer, GroupPostCommentSerializer, \
+    GroupPostCommentSerializerWithAuthor
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
-from meme_feed.models import GroupPost, Author
-from meme_feed.serializers import MemeSerializer, AuthorSerializer
 
 
 class MemeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -32,7 +36,7 @@ class MemeViewSet(viewsets.ReadOnlyModelViewSet):
 
 class AuthorsViewSet(viewsets.ReadOnlyModelViewSet):
     '''
-    Api endpoint for viewing dem sweet memes
+    Api endpoint for viewing dem sweet memes authors
     '''
 
     def list(self, request, *args, **kwargs):
@@ -51,7 +55,7 @@ def facebook_login(request):
     author_account.save()
     response = redirect(settings.CLIENT_ADDRESS + '/#/profile/' + str(author_account.id) + '#')
 
-    response.set_cookie('meme-token', jwt_encode_handler(jwt_payload_handler(user)), max_age=5)  # TODO: Set to one day
+    response.set_cookie('meme-token', jwt_encode_handler(jwt_payload_handler(user)), max_age=5*60)  # TODO: Set to one day
 
     return response
 
@@ -104,3 +108,41 @@ def toggle_real_name(request):
         success = False
 
     return JsonResponse(data={'success': success}, status=200 if success else 400)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    # serializer_class = GroupPostCommentSerializer
+    # permission_classes = IsAuthenticatedOrReadOnly
+
+    def get_serializer_class(self):
+        return GroupPostCommentSerializer
+
+    def get_queryset(self):
+        meme_id = self.request.query_params.get('meme_id', None)
+        if meme_id is not None:
+            return GroupPostComment.objects.all().filter(commented_object__id=meme_id).order_by('-created')
+        return GroupPostComment.objects.none()
+
+    def perform_create(self, serializer):
+        author = Author.get_from_request(self.request)
+        serializer.save(
+            author=author,
+            commented_object=GroupPost.objects.get(
+                id=self.request.parser_context['kwargs']['parent_lookup_commented_object']
+            )
+        )
+        # def create(self, request, *args, **kwargs):
+        #     pass
+        #
+        # def post(self, request):
+        #     serializer = GroupPostCommentSerializer(
+        #         data=request
+        #     )
+        #
+        #     if serializer.is_valid():
+        #         comment = GroupPostComment(serializer)
+        #         comment.author = Author.objects.get(user=request.user)
+        #         comment.save()
+        #         return JsonResponse(data=GroupPostCommentSerializer(comment).data,
+        #                             status=status.HTTP_201_CREATED)
+        #     return JsonResponse(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)

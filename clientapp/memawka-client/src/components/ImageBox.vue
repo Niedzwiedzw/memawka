@@ -1,6 +1,8 @@
 <template>
   <div class="card app-main-card">
-    <img class="card-img-top" :src="meme.image_url" alt="Card image cap">
+    <router-link :to="'/meme/' + meme.id + '/'">
+      <img class="card-img-top" :src="meme.image_url" alt="Card image cap">
+    </router-link>
     <div class="card-body">
       <h4 class="card-title">{{ meme.reaction_count }} <i style="color: red;" class="fa fa-star"></i></h4>
       <p class="card-text" :title="humanDate">
@@ -16,13 +18,13 @@
     props: ['meme'],
     computed: {
       humanDate () {
-        return this.meme.creation ? moment(this.meme.creation).format('DD.MM.YYYY h:mm:ss a') : ''
+        return this.meme.created ? moment(this.meme.created).format('DD.MM.YYYY h:mm:ss a') : ''
       }
     },
     mounted () {
       let memeid = this.meme.facebook_id.split('_')
       this.facebook_link = 'https://www.facebook.com/groups/' + memeid[0] + '/permalink/' + memeid[1]
-      this.timeSinceAdded = moment(this.meme.creation).fromNow()
+      this.timeSinceAdded = moment(this.meme.created).fromNow()
     },
     data () {
       return {
