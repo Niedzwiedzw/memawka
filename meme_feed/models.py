@@ -1,6 +1,12 @@
 from django.db import models
+
+from django.db.models import Avg
+from django.utils import timezone
+
 from django.utils.safestring import mark_safe
 from jwt import ExpiredSignatureError
+
+from koparka_memow.token_manager.token_manager import TokenManager
 
 from koparka_memow.models import Author as AuthorRaw
 from koparka_memow.models import GroupPost as GroupPostRaw
@@ -10,6 +16,87 @@ from django.contrib.auth.models import User
 from allauth.socialaccount.models import SocialAccount
 
 from django.conf import settings
+
+from django.core.exceptions import ValidationError
+
+
+def validate_minimal_quality_factor(value):
+    if not (0 < value < 1):
+        raise ValidationError("Number must be between 0 and 1")
+
+
+class FacebookGroup(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    group_id = models.CharField(max_length=100, unique=True)
+    deep_scanned = models.BooleanField(default=False)
+
+    _minimal_quality_factor = models.FloatField(default=0.85, validators=[validate_minimal_quality_factor])
+    _criteria_last_updated = models.DateTimeField(null=True, blank=True, default=None)
+    _criteria_last_value = models.IntegerField(null=True, blank=True, default=None)
+
+    _facebook_auth_key = models.CharField(max_length=100, blank=True, null=True, default=None)
+
+    def posts_from_month(self, month=None, year=None):
+        if month is None:
+            month = timezone.now().month
+        if year is None:
+            year = timezone.now().year
+
+        return self.posts.filter(created__year=year, created__month=month)
+
+    def monthly_top(self, month):
+        return self.posts.filter(created__month=month).order_by('-reaction_count').first()
+
+    @property
+    def current_month_minimum_like_criteria(self):
+        if self._criteria_last_updated and self._criteria_last_updated.month == timezone.now().month:
+            return self._criteria_last_value
+
+        initial_month = timezone.now().month-1
+        number_of_months = 3
+
+        months = list(range(initial_month-number_of_months, initial_month+1))
+        months = [month+12 if month < 1 else month for month in months]
+
+        average = int(sum([self.monthly_top(month).reaction_count for month in months])/number_of_months)
+
+        self._criteria_last_value = int(average * self._minimal_quality_factor)
+        self._criteria_last_updated = timezone.now()
+        return int(average * self._minimal_quality_factor)
+
+    @property
+    def this_month_average(self):
+        now = timezone.now()
+        return self.posts.filter(created__month=now.month,
+                                 created__year=now.year).aggregate(Avg('reaction_count')).values[0]
+
+    @property
+    def this_year_average(self):
+        now = timezone.now()
+        return self.posts.filter(created__month=now.year).aggregate(Avg('reaction_count')).values[0]
+
+    @property
+    def last_month_average(self):
+        now = timezone.now()
+        return self.posts.filter(
+            created__month=now.month-1 if now.month != 1 else now.month + 11,
+            created__year=now.year if now.month != 1 else now.year - 1).aggregate(Avg('reaction_count')).values[0]
+
+    @property
+    def last_year_average(self):
+        now = timezone.now()
+        return self.posts.filter(created__month=now.year-1).aggregate(Avg('reaction_count')).values[0]
+
+    @property
+    def all_time_average(self):
+        return self.posts.aggregate(Avg('reaction_count')).values[0]
+
+    @property
+    def facebook_auth_key(self):
+        return self._facebook_auth_key if self._facebook_auth_key else TokenManager.get_token()
+
+    def __str__(self):
+        return self.name
 
 
 class Author(models.Model):
@@ -32,8 +119,6 @@ class Author(models.Model):
 
     @classmethod
     def get_by_user(cls, user):
-        from pprint import pprint
-        pprint(user)
         return cls.objects.get(facebook_profile__user=user)
 
     @classmethod
@@ -73,7 +158,7 @@ class Author(models.Model):
 
     @property
     def memes(self):
-        return GroupPost.objects.filter(author__id=self.id)
+        return GroupPost.objects.filter(author__id=self.id, approved=True)
 
     @classmethod
     def create_from_raw(cls, raw_author: AuthorRaw):
@@ -88,14 +173,32 @@ class Author(models.Model):
 
 class GroupPost(models.Model):
     facebook_id = models.CharField(verbose_name='Facebook post ID', unique=True, max_length=200)
-    created = models.DateTimeField(verbose_name="Facebook post creation date", )
+    created = models.DateTimeField(verbose_name="Facebook post creation date")
     author = models.ForeignKey(Author, verbose_name='Facebook post Author', related_name='author')
     message = models.TextField(verbose_name='Facebook post message', blank=True, null=True)
     reaction_count = models.IntegerField(verbose_name='Number of likes')
     image_url = models.CharField(max_length=300, blank=True, null=True)
 
+    facebook_group = models.ForeignKey(FacebookGroup, related_name='posts')
+
+    approved = models.BooleanField(default=False)
+
     date_discovered = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+
+    def check_for_approval_and_approve(self):
+        minimum_likes = self.facebook_group.current_month_minimum_like_criteria
+
+        if self.reaction_count >= minimum_likes:
+            self.approved = True
+            self.save()
+            return None
+
+        growth_per_sec = 1 + int(self.reaction_count / (self.date_updated - self.created).seconds)
+
+        if growth_per_sec >= int(minimum_likes/24*60*60) + 1:
+            self.approved = True
+            self.save()
 
     def image_tag(self):
         return mark_safe(f'<img src="{self.image_url}" width="auto" height="400"/>')
@@ -106,6 +209,7 @@ class GroupPost(models.Model):
     def create_from_raw(cls, raw_group_post: GroupPostRaw):
         raw_group_post.author, _ = Author.create_from_raw(raw_group_post.author)
         post = cls.objects.get_or_create(**raw_group_post.__dict__)
+
         return post
 
     def __str__(self):
@@ -152,3 +256,5 @@ class GroupPostLike(BaseLike):
 class AuthorLike(BaseLike):
     author = models.ForeignKey(Author, related_name='my_author_likes')
     liked_object = models.ForeignKey(Author, related_name='likes')
+
+

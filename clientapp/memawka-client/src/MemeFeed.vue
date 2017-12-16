@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <!--pagination-->
-    <div class="container">
+    <div class="container hoverable">
       <ul class="pagination pagination-sm justify-content-center">
         <li class="page-item" @click="getPage(page - 1)" :class="{disabled: page == 1}"><a class="page-link"><i class="fa fa-arrow-circle-left"></i></a></li>
 

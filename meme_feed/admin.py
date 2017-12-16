@@ -1,5 +1,5 @@
 from django.contrib import admin
-from meme_feed.models import Author, GroupPost
+from meme_feed.models import Author, GroupPost, FacebookGroup, GroupPostComment
 
 # Register your models here.
 
@@ -13,3 +13,9 @@ class AuthorAdmin(admin.ModelAdmin):
 class AuthorAdmin(admin.ModelAdmin):
     fields = ('image_tag', 'author', 'created', 'message', 'reaction_count', 'date_discovered', 'date_updated')
     readonly_fields = ('image_tag', 'date_discovered', 'date_updated')
+
+
+@admin.register(FacebookGroup)
+class FacebookGroupAdmin(admin.ModelAdmin):
+    fields = ('name', 'group_id', '_facebook_auth_key')
+

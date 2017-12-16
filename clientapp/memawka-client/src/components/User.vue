@@ -23,7 +23,6 @@
             GRUPY
             <br>
             <span class="badge badge-success">Memawka</span>
-            <span v-for="i in 4" class="badge badge-secondary">Gownawka</span>
           </h2>
         </li>
       </ul>

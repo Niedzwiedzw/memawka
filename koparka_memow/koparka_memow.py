@@ -19,13 +19,16 @@ QUERY_SCHEME = ("https://graph.facebook.com/v2.11/{}/feed?"
 
 class KoparkaMemow:
 
-    def __init__(self, settings=SETTINGS, limit: int=None):
+    def __init__(self, settings=SETTINGS, limit: int=None, facebook_group=None):
         self._current_chunk = None
         self._link_next = None
         self._link_previous = None
 
         self.settings = settings
         self.settings['accessToken'] = TokenManager.get_token()
+
+        if facebook_group:
+            self.settings['groupID'] = facebook_group.group_id
         if limit is not None:
             self.settings['postsLimit'] = limit
         try:
@@ -42,16 +45,18 @@ class KoparkaMemow:
             self._current_chunk = response
         except KeyError as e:
             raise ResponseParsingException(f"\n\nSomething is wrong with the response, check the access token?"
-                                           f"Response looks something like this:\n\n{response}")
+                                           f"Response looks something like this:\n\n{ response }")
 
-    def next(self) -> None:
+    def next(self) -> bool:
         try:
             response = requests.get(self._current_chunk['paging']['next']).json()
         except KeyError as e:
             raise ResponseParsingException(f"\n\nSomething is wrong with the response, check the access token?"
-                                           f"Response looks something like this:\n\n{response}")
+                                           f"Response looks something like this:\n\n{ response }")
         self._current_chunk = response
-        self._link_next = self._current_chunk['paging']['next']
+        self._link_next = self._current_chunk['paging'].get('next', False)
+
+        return bool(self._link_next)
 
     @property
     def posts(self) -> List[GroupPost]:

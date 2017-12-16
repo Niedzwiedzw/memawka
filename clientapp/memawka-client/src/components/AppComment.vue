@@ -1,30 +1,26 @@
 <template>
   <div class="row">
-    <div class="col-4">
-      <router-link :to="'/profile/' + comment.author.id">
-        <img
-          :src="comment.author.display_avatar"
-          :alt="'Awatar uzytkownika ' + comment.author.display_name"
-          class="img-responsive img-thumbnail"/>
-      </router-link>
+    <div class="col-3">
+      <img
+        :src="comment.author.display_avatar"
+        :alt="'Zdjecie' + comment.author.display_name"
+        class="image-responsive hoverable img-thumbnail app-avatar"
+        @click="getUserProfile"
+      >
     </div>
-    <section :id="'comment-' + comment.id">
-      <div class="col-8">
-        <div class="row">
-          <h3 class="pull-left">
-            <router-link :to="'/profile/' + comment.author.id">
-              ~ {{ comment.author.display_name }}
-            </router-link>
-            <router-link :to="'/meme/' + meme.id + '#comment-' + comment.id">
-              <small>{{ humanDate }}</small>
-            </router-link>
-          </h3>
-        </div>
-        <div class="row">
-          <p>{{ comment.message }}</p>
+    <div class="col-9">
+      <div class="row">
+        <div @click="getUserProfile" class="container hoverable app-comment-author font-weight-bold">{{ comment.author.display_name }}</div>
+      </div>
+      <div class="row">
+        <div class="container hoverable app-comment-date font-italic">{{ humanDate }}</div>
+      </div>
+      <div class="row">
+        <div class="container app-comment-message">
+          {{ comment.message }}
         </div>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -33,6 +29,11 @@
   export default {
     name: 'AppComment',
     props: ['comment', 'meme'],
+    methods: {
+      getUserProfile() {
+        this.$router.push('/profile/' + this.comment.author.id + '/')
+      }
+    },
     data () {
       return {}
     },
@@ -45,5 +46,15 @@
 </script>
 
 <style scoped>
+  .app-comment-author, .app-comment-date, .app-comment-message {
+    text-align: left;
+  }
 
+  .app-comment-message {
+    word-wrap: break-word;
+  }
+
+  .app-avatar {
+    cursor: alias;
+  }
 </style>

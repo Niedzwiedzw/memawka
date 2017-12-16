@@ -30,7 +30,7 @@ class MemeViewSet(viewsets.ReadOnlyModelViewSet):
     '''
     Api endpoint for viewing dem sweet memes
     '''
-    queryset = GroupPost.objects.order_by('-reaction_count')
+    queryset = GroupPost.objects.filter(approved=True).order_by('-reaction_count')
     serializer_class = MemeSerializer
 
 
