@@ -1,32 +1,33 @@
 <template>
   <div class="container">
     <!--pagination-->
-    <div class="container">
-      <ul class="pagination pagination-lg justify-content-center">
-        <li class="page-item" @click="getPage(page - 1)" :class="{disabled: page == 1}"><a class="page-link">Previous</a></li>
+    <div class="container hoverable">
+      <ul class="pagination pagination-sm justify-content-center">
+        <li class="page-item" @click="getPage(page - 1)" :class="{disabled: page == 1}"><a class="page-link"><i class="fa fa-arrow-circle-left"></i></a></li>
 
-        <template v-if="page>5">
+        <template
+          v-if="page>3">
           <li class="page-item" @click="getPage(1)"><a class="page-link">1</a></li>
           <li class="page-item disabled"><a class="page-link">...</a></li>
         </template>
 
         <li class="page-item"
-            v-for="index in 10"
-            v-if="page + index - 5 <= numberOfPages && page + index - 5 > 0"
-            @click="getPage(page + index - 5)"
-            :class="{active:  index - 5 == 0}">
+            v-for="index in range(page - 2, page + 2)"
+            v-if="index <= numberOfPages && index > 0"
+            @click="getPage(index)"
+            :class="{active:  index == page, 'd-none': index != page, 'd-md-block': true}">
           <a class="page-link">
-            {{ page + index - 5 }}
+            {{ index }}
           </a>
         </li>
 
-
-        <template v-if="page < numberOfPages - 5">
+        <template
+          v-if="page < numberOfPages - 1">
           <li class="page-item disabled"><a class="page-link">...</a></li>
           <li class="page-item" @click="getPage(numberOfPages)"><a class="page-link">{{numberOfPages}}</a></li>
         </template>
 
-        <li class="page-item" @click="getPage(page+1)" :class="{disabled: page == numberOfPages}"><a class="page-link">Next</a></li>
+        <li class="page-item" @click="getPage(page+1)" :class="{disabled: page == numberOfPages}"><a class="page-link"><i class="fa fa-arrow-circle-right"></i></a></li>
       </ul>
     </div>
 
@@ -40,31 +41,32 @@
     </div>
     <!--bottom pagination-->
     <div class="container">
-      <ul class="pagination pagination-lg justify-content-center">
-        <li class="page-item" @click="getPage(page - 1)" :class="{disabled: page == 1}"><a class="page-link">Previous</a></li>
+      <ul class="pagination pagination-sm justify-content-center">
+        <li class="page-item" @click="getPage(page - 1)" :class="{disabled: page == 1}"><a class="page-link"><i class="fa fa-arrow-circle-left"></i></a></li>
 
-        <template v-if="page>5">
+        <template
+          v-if="page>3">
           <li class="page-item" @click="getPage(1)"><a class="page-link">1</a></li>
           <li class="page-item disabled"><a class="page-link">...</a></li>
         </template>
 
         <li class="page-item"
-            v-for="index in 10"
-            v-if="page + index - 5 <= numberOfPages && page + index - 5 > 0"
-            @click="getPage(page + index - 5)"
-            :class="{active:  index - 5 == 0}">
+            v-for="index in range(page - 2, page + 2)"
+            v-if="index <= numberOfPages && index > 0"
+            @click="getPage(index)"
+            :class="{active:  index == page, 'd-none': index != page, 'd-md-block': true}">
           <a class="page-link">
-            {{ page + index - 5 }}
+            {{ index }}
           </a>
         </li>
 
-
-        <template v-if="page < numberOfPages - 5">
+        <template
+          v-if="page < numberOfPages - 1">
           <li class="page-item disabled"><a class="page-link">...</a></li>
           <li class="page-item" @click="getPage(numberOfPages)"><a class="page-link">{{numberOfPages}}</a></li>
         </template>
 
-        <li class="page-item" @click="getPage(page+1)" :class="{disabled: page == numberOfPages}"><a class="page-link">Next</a></li>
+        <li class="page-item" @click="getPage(page+1)" :class="{disabled: page == numberOfPages}"><a class="page-link"><i class="fa fa-arrow-circle-right"></i></a></li>
       </ul>
     </div>
   </div>
@@ -72,10 +74,8 @@
 
 <script>
   import axiosInstance from './http-common'
-  import ImageBox from './components/ImageBox.vue'
   export default {
     name: 'MemeFeed',
-    components: {ImageBox},
     data: () => {
       return {
         baseUrl: 'memes/memes/',
@@ -95,6 +95,13 @@
             this.numberOfPages = Math.ceil(this.count / 10)
             window.scroll(0, 0)
           })
+      },
+      range (start, end) {
+        let list_ = []
+        for (let i = start; i < end; i++) {
+          list_.push(i)
+        }
+        return list_
       }
     },
     mounted: function () {

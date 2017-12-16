@@ -27,8 +27,13 @@
     color: #2c3e50;
     margin-top: 60px;
   }
-  .blue {
-    background-color: lightblue;
-    border: 1px solid blue;
+
+  .container {
+    max-width: 1000px;
+  }
+
+  .hoverable:hover {
+    cursor: pointer !important;
+    opacity: 0.7;
   }
 </style>

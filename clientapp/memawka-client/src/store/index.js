@@ -24,7 +24,6 @@ export const store = new Vuex.Store({
           commit('logUserIn', response.data.author)
         })
         .catch((err) => {
-          console.log(err)
           commit('logUserIn', null)
         })
     }
