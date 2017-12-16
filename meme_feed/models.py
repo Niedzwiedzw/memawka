@@ -38,6 +38,16 @@ class FacebookGroup(models.Model):
 
     _facebook_auth_key = models.CharField(max_length=100, blank=True, null=True, default=None)
 
+    @property
+    def posts_from_current_month(self):
+        return self.posts_from_month(timezone.now().month)
+
+    @property
+    def posts_from_last_month(self):
+        current = timezone.now().month
+        last = current-1 if current != 1 else current+11
+        return self.posts_from_month(last)
+
     def posts_from_month(self, month=None, year=None):
         if month is None:
             month = timezone.now().month
@@ -49,26 +59,33 @@ class FacebookGroup(models.Model):
     def monthly_top(self, month):
         return self.posts.filter(created__month=month).order_by('-reaction_count').first()
 
+    def monthly_top_average_likes(self, month):
+        posts = self.posts.filter(created__month=month).order_by('-reaction_count')
+        top_percent = int(posts.count()/80)
+        top_posts = posts[:top_percent]
+        top_avg = list(top_posts.aggregate(Avg('reaction_count')).values())[0]
+        return top_avg if top_avg else 0
+
     @property
     def current_month_minimum_like_criteria(self):
         if self._criteria_last_updated and self._criteria_last_updated.month == timezone.now().month:
+            # print(self._criteria_last_value)
             return self._criteria_last_value
 
         initial_month = timezone.now().month-1
         number_of_months = 3
 
-        months = list(range(initial_month-number_of_months, initial_month+1))
+        months = list(range(initial_month - number_of_months + 1, initial_month + 1))
         months = [month+12 if month < 1 else month for month in months]
 
-        average = int(sum([self.monthly_top(month).reaction_count for month in months])/number_of_months)
+        average = int(sum([self.monthly_top_average_likes(month) for month in months])/number_of_months)
 
-        self._criteria_last_value = int(average * self._minimal_quality_factor)
+        self._criteria_last_value = int(average * self._minimal_quality_factor**4)
         self._criteria_last_updated = timezone.now()
 
         self.save()
-        criteria = int(average * self._minimal_quality_factor)
 
-        return criteria if criteria > 30 else 30
+        return self._criteria_last_value if self._criteria_last_value > 30 else 30
 
     @property
     def this_month_average(self):
@@ -206,7 +223,7 @@ class GroupPost(models.Model):
 
         growth_per_sec = 1 + int(self.reaction_count / (self.date_updated - self.created).seconds)
 
-        if growth_per_sec >= int(minimum_likes/24*60*60) + 1:
+        if growth_per_sec >= int(minimum_likes/48*60*60) + 1:
             self.approved = True
             self.save()
             return True

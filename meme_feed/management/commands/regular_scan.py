@@ -12,7 +12,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for facebook_group in FacebookGroup.objects.all():
             print("## ", facebook_group.name)
-            koparka = KoparkaMemow(limit=50, facebook_group=facebook_group)
+            print("likes threshold: {}".format(facebook_group.current_month_minimum_like_criteria))
+
+            koparka = KoparkaMemow(
+                limit=1+facebook_group.posts_from_last_month.count()//10,
+                facebook_group=facebook_group)
+
             added_count = 0
             approved_count = 0
 
@@ -27,11 +32,12 @@ class Command(BaseCommand):
                     print('.', end='')
                     added_count += 1
 
-                if _created and group_post.check_for_approval_and_approve():
+                _status = group_post.approved
+                group_post.check_for_approval_and_approve()
+                if _status != group_post.approved:
                     print('*', end='')
                     approved_count += 1
 
-            print('Added: ', added_count, '\n')
             print('Approved: ', approved_count, '\n')
 
 
