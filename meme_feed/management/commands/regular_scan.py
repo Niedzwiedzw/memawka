@@ -11,15 +11,28 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for facebook_group in FacebookGroup.objects.all():
+            print("## ", facebook_group.name)
             koparka = KoparkaMemow(limit=50, facebook_group=facebook_group)
-            i = 0
+            added_count = 0
+            approved_count = 0
 
             for post in koparka.posts:
-                print('.', end='')
+                if not post.image_url:
+                    continue
+
                 post.facebook_group = facebook_group
-                group_post, _ = GroupPost.create_from_raw(post)
+                group_post, _created = GroupPost.create_from_raw(post)
 
-                group_post.check_for_approval_and_approve()
+                if _created:
+                    print('.', end='')
+                    added_count += 1
 
-            print(i, ' ')
+                if _created and group_post.check_for_approval_and_approve():
+                    print('*', end='')
+                    approved_count += 1
+
+            print('Added: ', added_count, '\n')
+            print('Approved: ', approved_count, '\n')
+
+
 

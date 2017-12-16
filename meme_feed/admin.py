@@ -17,5 +17,6 @@ class AuthorAdmin(admin.ModelAdmin):
 
 @admin.register(FacebookGroup)
 class FacebookGroupAdmin(admin.ModelAdmin):
-    fields = ('name', 'group_id', '_facebook_auth_key')
+    fields = ('name', 'group_id', '_facebook_auth_key', 'deep_scanned', '_minimal_quality_factor')
+    readonly_fields = ('_criteria_last_updated', '_criteria_last_value')
 

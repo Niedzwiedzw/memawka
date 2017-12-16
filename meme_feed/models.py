@@ -28,7 +28,9 @@ def validate_minimal_quality_factor(value):
 class FacebookGroup(models.Model):
     name = models.CharField(max_length=100, unique=True)
     group_id = models.CharField(max_length=100, unique=True)
+
     deep_scanned = models.BooleanField(default=False)
+    deep_validated = models.BooleanField(default=False)
 
     _minimal_quality_factor = models.FloatField(default=0.85, validators=[validate_minimal_quality_factor])
     _criteria_last_updated = models.DateTimeField(null=True, blank=True, default=None)
@@ -62,7 +64,11 @@ class FacebookGroup(models.Model):
 
         self._criteria_last_value = int(average * self._minimal_quality_factor)
         self._criteria_last_updated = timezone.now()
-        return int(average * self._minimal_quality_factor)
+
+        self.save()
+        criteria = int(average * self._minimal_quality_factor)
+
+        return criteria if criteria > 30 else 30
 
     @property
     def this_month_average(self):
@@ -162,7 +168,11 @@ class Author(models.Model):
 
     @classmethod
     def create_from_raw(cls, raw_author: AuthorRaw):
-        return cls.objects.get_or_create(**raw_author.__dict__)
+        try:
+            author = Author.objects.get(facebook_id=raw_author.facebook_id)
+            return author, False
+        except Author.DoesNotExist:
+            return cls.objects.get_or_create(**raw_author.__dict__)
 
     def __str__(self):
         return f'[{self.facebook_id}] {self.name}'
@@ -192,13 +202,15 @@ class GroupPost(models.Model):
         if self.reaction_count >= minimum_likes:
             self.approved = True
             self.save()
-            return None
+            return True
 
         growth_per_sec = 1 + int(self.reaction_count / (self.date_updated - self.created).seconds)
 
         if growth_per_sec >= int(minimum_likes/24*60*60) + 1:
             self.approved = True
             self.save()
+            return True
+        return False
 
     def image_tag(self):
         return mark_safe(f'<img src="{self.image_url}" width="auto" height="400"/>')
@@ -207,10 +219,17 @@ class GroupPost(models.Model):
 
     @classmethod
     def create_from_raw(cls, raw_group_post: GroupPostRaw):
-        raw_group_post.author, _ = Author.create_from_raw(raw_group_post.author)
-        post = cls.objects.get_or_create(**raw_group_post.__dict__)
-
+        try:
+            post = GroupPost.objects.get(facebook_id=raw_group_post.facebook_id), False
+            post[0].update_from_raw(raw_group_post)
+        except GroupPost.DoesNotExist:
+            raw_group_post.author, _ = Author.create_from_raw(raw_group_post.author)
+            post = cls.objects.get_or_create(**raw_group_post.__dict__)
         return post
+
+    def update_from_raw(self, raw_group_post: GroupPostRaw):
+        self.reaction_count = raw_group_post.reaction_count
+        self.save()
 
     def __str__(self):
         return f'[{self.facebook_id}]Post by [{self.author.name}], ({self.reaction_count} reactions)'

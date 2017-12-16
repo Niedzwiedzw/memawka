@@ -6,6 +6,7 @@ from koparka_memow.koparka_memow import KoparkaMemow
 from meme_feed.models import GroupPost
 
 
+
 class Command(BaseCommand):
     help = 'Pulls some posts from group into the database'
 
@@ -13,9 +14,12 @@ class Command(BaseCommand):
         for facebook_group in FacebookGroup.objects.all():
             if not facebook_group.deep_scanned:
                 koparka = KoparkaMemow(limit=50, facebook_group=facebook_group)
+                print('######### scanning: ', facebook_group.name)
                 i = 0
                 while True:
                     for post in koparka.posts:
+                        if not post.image_url:
+                            continue
                         print('.', end='')
                         post.facebook_group = facebook_group
                         GroupPost.create_from_raw(post)

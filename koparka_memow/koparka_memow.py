@@ -54,7 +54,10 @@ class KoparkaMemow:
             raise ResponseParsingException(f"\n\nSomething is wrong with the response, check the access token?"
                                            f"Response looks something like this:\n\n{ response }")
         self._current_chunk = response
-        self._link_next = self._current_chunk['paging'].get('next', False)
+        try:
+            self._link_next = self._current_chunk['paging'].get('next', False)
+        except KeyError:
+            return False
 
         return bool(self._link_next)
 
